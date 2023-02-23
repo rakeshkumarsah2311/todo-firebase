@@ -12,6 +12,7 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.3.0",
+    "sass": "^1.52.3",
     "uid": "^2.0.0"
   },
   "devDependencies": {

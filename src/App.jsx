@@ -1,5 +1,7 @@
 
 import './App.css'
+import "./index.scss"
+
 import TasksPage from './components/TasksPage'
 import Welcome from './components/Welcome'
 

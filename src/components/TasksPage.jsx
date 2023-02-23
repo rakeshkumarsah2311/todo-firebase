@@ -8,6 +8,7 @@ import { set,ref, onValue, remove, update  } from "firebase/database";
 const TasksPage = ({ user, setUser }) => {
     const [allTodos, setAllTodos] = useState([]);
     const [ todos, setTodos ] = useState([]);
+    const [showForm, setShowForm ] = useState(false);
 
     const [message, setMessage ] = useState(null)
     const navigate = useNavigate()
@@ -25,6 +26,7 @@ const TasksPage = ({ user, setUser }) => {
             }
 
             if(user) {
+                setUser(user.email)
                 onValue(ref(db, `/${auth.currentUser.uid}`), snapshot => {
                     setTodos([])
                     const data = snapshot.val()
@@ -71,6 +73,8 @@ const TasksPage = ({ user, setUser }) => {
         }
 
         writeToDatabase()
+
+        setShowForm(false)
     }
 
     const handleChange = (e) => {
@@ -99,13 +103,22 @@ const TasksPage = ({ user, setUser }) => {
         }
     },[allTodos])
 
+
+    const handleClick = (e) => {
+        console.log(e.target.classList);
+        if(e.target.classList[0] === "addtask-form") setShowForm(false)
+    }   
     const getTomorrowDate = () => today.getFullYear()+'-'+(today.getMonth()+1)+'-'+(today.getDate()+1)
     return (
-        <div className="App">
-        <h1>Hello {user}</h1>
-        <button onClick={handleSignOut}>Log Out</button>
-        <h3>TODOS</h3>
-        <div>
+        <div className="taskpage">
+         
+         <div className='greeting'>
+            <img src='/images/avatar.svg' alt='' />
+            <h5>{user}</h5>
+         </div>
+        <button className='logout' onClick={handleSignOut}>Log Out</button>
+        <h3>Your Tasks for</h3>
+        <div className='filter-wrapper'>
             <select onChange={filterTasks}>
                 <option value="today">Today</option>
                 <option value="tomorrow">Tomorrow</option>
@@ -113,19 +126,29 @@ const TasksPage = ({ user, setUser }) => {
         </div>
         <h5>{message && message} </h5>
         
-        <form onSubmit={handleSubmit} key={task} >
-            <input type="text" placeholder='Add To Do' value={task.taskName} onChange={handleChange} required/>
-            <select placeholder='Select Date' value={task.date} onChange={handleDateChange} required>
-                <option>Select Date</option>
-                <option value={getTodayDate()}>Today</option>
-                <option value={getTomorrowDate()}>Tomorrow</option>
-            </select>
+        <form onClick={handleClick} className={`addtask-form ${showForm && "show"}`} onSubmit={handleSubmit} key={task} >
+            <div className='wrapper'>
+                <div>
+                    <input type="text" placeholder='Add To Do' value={task.taskName} onChange={handleChange} required/>
+                </div>
+                <select placeholder='Select Date' value={task.date} onChange={handleDateChange} required>
+                    <option>Select Date</option>
+                    <option value={getTodayDate()}>Today</option>
+                    <option value={getTomorrowDate()}>Tomorrow</option>
+                </select>
 
-            <button type='submit'>Add Task</button>
+                <div>
+                    <button className='add-task-btn' type='submit'>Add Task</button>
+                </div>
+            </div>
         </form>
-        {
-        todos?.map((todo, index) => <Todo key={index} todo={todo} />)
-        }
+        <div className="tasks-wrapper">
+            {
+                todos?.map((todo, index) => <Todo key={index} todo={todo} />)
+            }
+        </div>
+
+        <img onClick={() => setShowForm(true)} src='/images/add-button.svg' className='add-button' />
         </div>
     )
 }
@@ -139,9 +162,9 @@ const Todo = ({ todo }) => {
         remove(ref(db, `/${auth.currentUser.uid}/${uidd}`))
     }
 
-    return <div>
-        <h3>{todo.task.taskName}</h3>
-        <button onClick={() => handleDelete(todo.uidd)}>delete</button>
+    return <div className='task'>
+        <h4>{todo.task.taskName}</h4>
+        <img className='delete-icon' src='/images/delete-icon.svg' onClick={() => handleDelete(todo.uidd)} />
     </div>
 
 }
